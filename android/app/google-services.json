@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "341915135981",
+    "project_id": "live-chat-72cb8",
+    "storage_bucket": "live-chat-72cb8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341915135981:android:a2cf6676a61819058a41e4",
+        "android_client_info": {
+          "package_name": "com.example.live_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATnkcBmIbap3YQoAHKDyjUJPh5oBNWaCE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
