@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:live_chat/screen/auth/login_screen_view.dart';
-import 'package:live_chat/theme/theme.dart';
+import 'package:live_chat/constant/app/locator.dart';
+import 'package:live_chat/screen/landing_view_screnn.dart';
+import 'package:live_chat/constant/theme/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
+  setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: buildAppTheme(),
-      home: const LoginScreenView(),
+      home: LandingViewScreen(),
     );
   }
 }

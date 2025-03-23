@@ -1,15 +1,23 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:live_chat/constant/app/locator.dart';
+import 'package:live_chat/model/user_model.dart';
+import 'package:live_chat/services/auth_base.dart';
+import 'package:live_chat/services/firebase_auth_service.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 
-class LoginScreenView extends StatefulWidget {
-  const LoginScreenView({super.key});
+// ignore: must_be_immutable
+class LoginScreenView extends StatelessWidget {
+  final Function(UserModel?) onSignIn;
+  AuthBase authService = locator<FirebaseAuthService>();
 
-  @override
-  State<LoginScreenView> createState() => _LoginScreenViewState();
-}
+  LoginScreenView({super.key, required this.onSignIn});
+  // Add this method to the _LoginScreenViewState class
+  _anonymousLogin() async {
+    UserModel? _user = await authService.signInAnonymously();
+    onSignIn(_user);
+    print("oturum acan user id: ${_user?.toString()}");
+  }
 
-class _LoginScreenViewState extends State<LoginScreenView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,11 +69,5 @@ class _LoginScreenViewState extends State<LoginScreenView> {
         ),
       ),
     );
-  }
-
-  // Add this method to the _LoginScreenViewState class
-  _anonymousLogin() async {
-    UserCredential result = await FirebaseAuth.instance.signInAnonymously();
-    print("oturum acan user id: ${result.user?.uid.toString()}");
   }
 }
