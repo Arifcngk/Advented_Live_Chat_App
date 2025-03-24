@@ -1,70 +1,113 @@
 import 'package:flutter/material.dart';
-import 'package:live_chat/constant/app/locator.dart';
 import 'package:live_chat/model/user_model.dart';
-import 'package:live_chat/services/auth_base.dart';
-import 'package:live_chat/services/firebase_auth_service.dart';
-import 'package:sign_in_button/sign_in_button.dart';
+import 'package:live_chat/screen/auth/widgets/custom_btn_widget.dart';
+import 'package:live_chat/screen/auth/widgets/custom_txtfield_widget.dart';
+import 'package:live_chat/viewmodel/user_view_model.dart';
+import 'package:provider/provider.dart';
 
-// ignore: must_be_immutable
-class LoginScreenView extends StatelessWidget {
-  final Function(UserModel?) onSignIn;
-  AuthBase authService = locator<FirebaseAuthService>();
+class LoginScreenView extends StatefulWidget {
+  @override
+  State<LoginScreenView> createState() => _LoginScreenViewState();
+}
 
-  LoginScreenView({super.key, required this.onSignIn});
-  // Add this method to the _LoginScreenViewState class
-  _anonymousLogin() async {
-    UserModel? _user = await authService.signInAnonymously();
-    onSignIn(_user);
-    print("oturum acan user id: ${_user?.toString()}");
+class _LoginScreenViewState extends State<LoginScreenView> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  // Anonim giriş methodu
+  Future<void> _anonymousLogin(BuildContext context) async {
+    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    UserModel? user = await userViewModel.signInAnonymously();
+    print("oturum acan user id: ${user?.toString()}");
+  }
+
+  // Google ile giriş methodu
+  Future<void> _signinWithGoogle(BuildContext context) async {
+    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    UserModel? user = await userViewModel.signInGoogle();
+    print("google oturum acan user id: ${user?.userID.toString()}");
+  }
+
+  // email ve parola ile giriş
+  Future<void> _emailAndPasswordLogin() async {
+    print(_emailController.text);
+    print(_passwordController.text);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text;
+    _emailController.text;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Live Chat')),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(40),
+        child: ClipRRect(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
+          child: AppBar(title: Text("Live Chat"), elevation: 0),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SignInButton(
-                Buttons.google,
-                onPressed: () {},
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: Colors.grey.shade400),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomTextFieldCardWidget(
+                  controller: _emailController,
+                  hintText: "Email Adresin",
+                  onTap: () {},
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 26, vertical: 12),
-                text: "Google ile Giriş Yap",
-              ),
-              SizedBox(height: 20),
-              SignInButton(
-                Buttons.email,
-                onPressed: () {},
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: Colors.grey.shade400),
+                SizedBox(height: 12),
+                CustomTextFieldCardWidget(
+                  controller: _passwordController,
+                  hintText: "Şifreniz",
+                  obscureText: true,
+                  onTap: () {},
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 26, vertical: 20),
-                text: "Mail ile Giriş Yap",
-              ),
-              SizedBox(height: 20),
-              SignInButton(
-                Buttons.anonymous,
-                onPressed: _anonymousLogin,
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: Colors.grey.shade400),
+                SizedBox(height: 12),
+                GestureDetector(
+                  onTap:
+                      () => _emailAndPasswordLogin(), // Butona tıklama işlevi
+                  child: CustomButtonWidget(
+                    imgPath: "assets/icons/send.png",
+                    cardColor: Theme.of(context).colorScheme.secondary,
+                    txt: "Giriş Yap",
+                    txtColor: Colors.black87,
+                  ),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 26, vertical: 20),
-                text: "Anonim Olarak Giriş Yap",
-              ),
-            ],
+                SizedBox(height: 40),
+
+                // Google ile giriş butonu
+                GestureDetector(
+                  onTap:
+                      () => _signinWithGoogle(context), // Butona tıklama işlevi
+                  child: CustomButtonWidget(
+                    imgPath: "assets/icons/google.png",
+                    cardColor: Colors.white,
+                    txt: "Google ile devam et",
+                    txtColor: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 12),
+                // Anonim ile Giriş Yap
+                GestureDetector(
+                  onTap:
+                      () => _anonymousLogin(context), // Butona tıklama işlevi
+                  child: CustomButtonWidget(
+                    imgPath: "assets/icons/bitcoin.png",
+                    cardColor: Colors.grey.shade300,
+                    txt: "Anonim olarak devam et",
+                    txtColor: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

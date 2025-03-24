@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
 
@@ -34,9 +35,51 @@ class FirebaseAuthService implements AuthBase {
     }
   }
 
+  Future<UserModel?> signInGoogle() async {
+    try {
+      GoogleSignIn _googleSignin = GoogleSignIn();
+      print("Google Sign-In başlatılıyor...");
+      GoogleSignInAccount? _googleUser = await _googleSignin.signIn();
+
+      if (_googleUser == null) {
+        print("Google Sign-In iptal edildi veya başarısız oldu.");
+        return null;
+      }
+
+      print("Google Kullanıcı: ${_googleUser.email}");
+      var _googleAuth = await _googleUser.authentication;
+
+      if (_googleAuth.idToken == null || _googleAuth.accessToken == null) {
+        print(
+          "Google Auth token’ları alınamadı: idToken=${_googleAuth.idToken}, accessToken=${_googleAuth.accessToken}",
+        );
+        return null;
+      }
+
+      print(
+        "Google Auth token’ları alındı: idToken=${_googleAuth.idToken?.substring(0, 10)}..., accessToken=${_googleAuth.accessToken?.substring(0, 10)}...",
+      );
+      UserCredential result = await _firebaseAuth.signInWithCredential(
+        GoogleAuthProvider.credential(
+          accessToken: _googleAuth.accessToken,
+          idToken: _googleAuth.idToken,
+        ),
+      );
+
+      User? _user = result.user;
+      print("Firebase Kullanıcı: ${_user?.email}");
+      return _userFromFirebase(_user);
+    } catch (e) {
+      print('Hata: Firebase Auth Service - signInGoogle: $e');
+      return null;
+    }
+  }
+
   @override
   Future<bool> signOut() async {
     try {
+      final _googleSignIn = GoogleSignIn();
+      await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
       return true;
     } catch (e) {
@@ -44,4 +87,17 @@ class FirebaseAuthService implements AuthBase {
       return false;
     }
   }
+  
+  @override
+  Future<UserModel?> createEmailAndPassword(String email, String password) {
+    // TODO: implement createEmailAndPassword
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<UserModel?> sigInEmailAndPassword(String email, String password) {
+    // TODO: implement sigInEmailAndPassword
+    throw UnimplementedError();
+  }
+
 }
