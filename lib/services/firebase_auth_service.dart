@@ -87,17 +87,34 @@ class FirebaseAuthService implements AuthBase {
       return false;
     }
   }
-  
+
   @override
-  Future<UserModel?> createEmailAndPassword(String email, String password) {
-    // TODO: implement createEmailAndPassword
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<UserModel?> sigInEmailAndPassword(String email, String password) {
-    // TODO: implement sigInEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel?> createEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      UserCredential result = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      return _userFromFirebase(result.user);
+    } catch (e) {
+      print('Hata: Firebase Auth Service - Create User: $e');
+      return null;
+    }
   }
 
+  @override
+  Future<UserModel?> sigInEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      UserCredential result = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      return _userFromFirebase(result.user);
+    } catch (e) {
+      print('Hata: Firebase Auth Service - Signin Email and Password User: $e');
+      return null;
+    }
+  }
 }

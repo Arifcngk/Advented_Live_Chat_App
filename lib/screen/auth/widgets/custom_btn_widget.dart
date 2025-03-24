@@ -3,15 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 
 class CustomButtonWidget extends StatelessWidget {
   final String txt;
-  final String imgPath;
+  final String? imgPath;
   final Color txtColor;
   final Color cardColor;
+  final bool imagePath;
+
   const CustomButtonWidget({
     super.key,
     required this.txt,
-    required this.imgPath,
+    this.imgPath,
     required this.txtColor,
     required this.cardColor,
+    this.imagePath = true,
   });
 
   @override
@@ -35,11 +38,12 @@ class CustomButtonWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center, // İçerik ortada
         children: [
-          Image.asset(
-            imgPath,
-            width: 28, // Google logosu boyutu küçültüldü
-            height: 28,
-          ),
+          if (imagePath == true)
+            Image.asset(
+              imgPath!,
+              width: 28, // Google logosu boyutu küçültüldü
+              height: 28,
+            ),
           SizedBox(width: 18), // Logo ile yazı arası boşluk
           Text(
             txt,

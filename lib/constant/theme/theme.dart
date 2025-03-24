@@ -4,14 +4,13 @@ ThemeData buildAppTheme() {
   return ThemeData(
     colorScheme: const ColorScheme.light(
       primary: Color(0xFFF8FAFC),
-      secondary: Color(0xFFD9EAFD),
+      secondary: Color(0xFF29e680),
       surface: Color(0xFFBCCCDC),
       onPrimary: Color(0xFF9AA6B2),
     ),
 
     appBarTheme: const AppBarTheme(
-      
-      backgroundColor: Color(0xFFD9EAFD),
+      backgroundColor: Color(0xFF29e680),
       centerTitle: true,
       elevation: 0,
     ),

@@ -90,16 +90,40 @@ class UserViewModel with ChangeNotifier implements AuthBase {
       state = ViewState.Idle;
     }
   }
-  
+
   @override
-  Future<UserModel?> createEmailAndPassword(String email, String password) {
-    // TODO: implement createEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel?> createEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      state = ViewState.Busy;
+      _user = await _userRepository.createEmailAndPassword(email, password);
+      print('ViewModeldeki Create User oluşturma: ${_user?.toString()}');
+      return _user;
+    } catch (e) {
+      print('ViewModeldeki Creatuser oluşturma  hatası: $e');
+      return null;
+    } finally {
+      state = ViewState.Idle;
+    }
   }
-  
+
   @override
-  Future<UserModel?> sigInEmailAndPassword(String email, String password) {
-    // TODO: implement sigInEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel?> sigInEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      state = ViewState.Busy;
+      _user = await _userRepository.sigInEmailAndPassword(email, password);
+      print('ViewModeldeki Create User oluşturma: ${_user?.toString()}');
+      return _user;
+    } catch (e) {
+      print('ViewModeldeki Creatuser oluşturma  hatası: $e');
+      return null;
+    } finally {
+      state = ViewState.Idle;
+    }
   }
 }

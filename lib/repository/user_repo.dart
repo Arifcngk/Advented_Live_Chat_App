@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:live_chat/constant/app/locator.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
@@ -47,16 +49,28 @@ class UserRepository implements AuthBase {
       return _firebaseAuthService.signInGoogle();
     }
   }
-  
+
   @override
-  Future<UserModel?> createEmailAndPassword(String email, String password) {
-    // TODO: implement createEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel?> createEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    if (appModde == AppModde.DEBUG) {
+      return await _fakeAuthService.createEmailAndPassword(email, password);
+    } else {
+      return _firebaseAuthService.createEmailAndPassword(email, password);
+    }
   }
-  
+
   @override
-  Future<UserModel?> sigInEmailAndPassword(String email, String password) {
-    // TODO: implement sigInEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel?> sigInEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    if (appModde == AppModde.DEBUG) {
+      return await _fakeAuthService.sigInEmailAndPassword(email, password);
+    } else {
+      return _firebaseAuthService.sigInEmailAndPassword(email, password);
+    }
   }
 }
