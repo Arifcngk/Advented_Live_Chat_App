@@ -1,50 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:live_chat/model/user_model.dart';
-import 'package:live_chat/viewmodel/user_view_model.dart';
-import 'package:provider/provider.dart';
+import 'package:live_chat/constant/app/tab_item.dart';
+import 'package:live_chat/screen/profile_view_screen.dart';
+import 'package:live_chat/screen/users_view_screen.dart';
+import 'package:live_chat/screen/widgets/custom_bottom_navigator_widget.dart';
 
 // ignore: must_be_immutable
-class HomeViewScreen extends StatelessWidget {
+class HomeViewScreen extends StatefulWidget {
   final UserModel user;
   HomeViewScreen({super.key, required this.user});
 
   @override
+  State<HomeViewScreen> createState() => _HomeViewScreenState();
+}
+
+class _HomeViewScreenState extends State<HomeViewScreen> {
+  TabItem _currentTab = TabItem.Users;
+  Map<TabItem, GlobalKey<NavigatorState>> navigatorStateKey = {
+    TabItem.Users: GlobalKey<NavigatorState>(),
+    TabItem.Profile: GlobalKey<NavigatorState>(),
+  };
+  Map<TabItem, Widget> allScreen() {
+    return {
+      TabItem.Users: UsersViewScreen(),
+      TabItem.Profile: ProfileViewScreen(),
+    };
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Future<bool?> signOut(BuildContext context) async {
-      final userViewModel = Provider.of<UserViewModel>(context, listen: false);
-      bool? result = await userViewModel.signOut();
-      return result;
-    }
+    return PopScope(
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return; // Eğer zaten pop edildiyse işlem yapma
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => signOut(context),
-          icon: Icon(Icons.arrow_back_sharp),
-        ),
-        title: Text(
-          'Chat',
-          style: GoogleFonts.poppins(
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-            fontSize: 26,
-          ),
-        ),
+        final navigator = navigatorStateKey[_currentTab]?.currentState;
+        if (navigator != null && await navigator.maybePop()) {
+          // Eğer aktif navigator geri gidebiliyorsa, gitmesine izin ver
+          return;
+        }
 
-        centerTitle: false,
-        backgroundColor: Color(0xFFF8FAFC),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 18),
-            child: Image.asset("assets/icons/edit.png", width: 24, height: 24),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [Text('Hoşgeldiniz ${user.userID}'), SizedBox(height: 8)],
-        ),
+        print("Ana ekranda geri gitme engellendi!");
+      },
+      child: CustomBottomNavigatorWidget(
+        navigatorKeys: navigatorStateKey,
+        createdScreen: allScreen(),
+        currentTab: _currentTab,
+        onSelectedItem: (selectedTab) {
+          setState(() {
+            _currentTab = selectedTab;
+          });
+          print(selectedTab);
+        },
       ),
     );
   }

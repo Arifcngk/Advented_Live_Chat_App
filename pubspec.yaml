@@ -43,6 +43,7 @@ dependencies:
   google_sign_in: ^6.3.0
   google_fonts: ^6.2.1
   flutter_advanced_switch: ^3.1.0
+  cloud_firestore: ^5.6.5
 
 dev_dependencies:
   flutter_test:

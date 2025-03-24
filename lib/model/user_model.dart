@@ -1,5 +1,47 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   final String userID;
+  String? email;
+  String? userName;
+  String? profileURL;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? level;
 
-  UserModel({required this.userID});
+  UserModel({
+    required this.userID,
+    this.email,
+    this.userName,
+    this.profileURL,
+    this.createdAt,
+    this.updatedAt,
+    this.level,
+  });
+
+  // Nesneyi Map'e çevirme
+  Map<String, dynamic> toMap() {
+    return {
+      'userID': userID,
+      'email': email ?? '',
+      'userName': userName ?? '',
+      'profileURL': profileURL ?? '',
+      'createdAt': createdAt ?? FieldValue.serverTimestamp(),
+      'updatedAt': updatedAt ?? FieldValue.serverTimestamp(),
+      'level': level ?? 1,
+    };
+  }
+
+  // Firestore'dan gelen veriyi modele dönüştürme
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      userID: map['userID'] ?? '',
+      email: map['email'],
+      userName: map['userName'],
+      profileURL: map['profileURL'],
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
+      updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
+      level: map['level'] ?? 1,
+    );
+  }
 }

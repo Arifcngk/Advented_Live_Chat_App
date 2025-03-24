@@ -7,7 +7,7 @@ class FakeAuthService implements AuthBase {
   Future<UserModel?> currentUser() async {
     return await Future.delayed(
       Duration(seconds: 1),
-      () => UserModel(userID: userID),
+      () => UserModel(userID: userID, email: "fake@gmail.com"),
     );
   }
 
@@ -15,7 +15,7 @@ class FakeAuthService implements AuthBase {
   Future<UserModel?> signInAnonymously() async {
     return await Future.delayed(
       Duration(seconds: 2),
-      () => UserModel(userID: userID),
+      () => UserModel(userID: userID, email: "fake@gmail.coö"),
     );
   }
 
@@ -23,20 +23,19 @@ class FakeAuthService implements AuthBase {
   Future<bool?> signOut() async {
     return Future.value(true);
   }
-  
+
   @override
   Future<UserModel> signInGoogle() {
     // TODO: implement signInGoogle
     throw UnimplementedError();
   }
-  
 
   @override
   Future<UserModel?> createEmailAndPassword(String email, String password) {
     // TODO: implement createEmailAndPassword
     throw UnimplementedError();
   }
-  
+
   @override
   Future<UserModel?> sigInEmailAndPassword(String email, String password) {
     // TODO: implement sigInEmailAndPassword
