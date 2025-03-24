@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:live_chat/constant/app/locator.dart';
 import 'package:live_chat/model/user_model.dart';

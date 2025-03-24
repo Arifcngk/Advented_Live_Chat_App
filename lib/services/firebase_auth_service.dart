@@ -112,9 +112,21 @@ class FirebaseAuthService implements AuthBase {
       UserCredential result = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       return _userFromFirebase(result.user);
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       print('Hata: Firebase Auth Service - Signin Email and Password User: $e');
-      return null;
+
+      String errorMessage;
+      if (e.code == 'user-not-found') {
+        errorMessage = "Bu e-posta ile kayıtlı bir kullanıcı bulunamadı!";
+      } else if (e.code == 'wrong-password') {
+        errorMessage = "Hatalı şifre girdiniz!";
+      } else if (e.code == 'invalid-email') {
+        errorMessage = "Geçersiz e-posta adresi!";
+      } else {
+        errorMessage = "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.";
+      }
+
+      throw Exception(errorMessage); // Hata mesajını fırlat
     }
   }
 }

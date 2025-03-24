@@ -16,7 +16,6 @@ class _LoginScreenViewState extends State<LoginScreenView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _switchController = ValueNotifier<bool>(false);
-  bool _checked = false;
   // kullanıcı ilk kez kayıt olacaksa
 
   // Anonim giriş methodu
@@ -42,19 +41,6 @@ class _LoginScreenViewState extends State<LoginScreenView> {
 
     try {
       if (_switchController.value == false) {
-        // Giriş yap
-        print("Giriş yapılıyor...");
-        UserModel? _signinUser = await userViewModel.sigInEmailAndPassword(
-          _emailController.text,
-          _passwordController.text,
-        );
-
-        if (_signinUser != null) {
-          print("Başarıyla giriş yapıldı: ${_signinUser.userID}");
-        } else {
-          print("Giriş başarısız.");
-        }
-      } else {
         // Yeni kullanıcı oluştur
         print("Yeni kullanıcı oluşturuluyor...");
         UserModel? _creatingUser = await userViewModel.createEmailAndPassword(
@@ -68,6 +54,19 @@ class _LoginScreenViewState extends State<LoginScreenView> {
           );
         } else {
           print("Kullanıcı oluşturma başarısız.");
+        }
+      } else {
+        // Giriş yap
+        print("Giriş yapılıyor...");
+        UserModel? _signinUser = await userViewModel.sigInEmailAndPassword(
+          _emailController.text,
+          _passwordController.text,
+        );
+
+        if (_signinUser != null) {
+          print("Başarıyla giriş yapıldı: ${_signinUser.userID}");
+        } else {
+          print("Giriş başarısız.");
         }
       }
     } catch (e) {
@@ -92,7 +91,17 @@ class _LoginScreenViewState extends State<LoginScreenView> {
         preferredSize: Size.fromHeight(40),
         child: ClipRRect(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-          child: AppBar(title: Text("Live Chat"), elevation: 0),
+          child: AppBar(
+            title: Text(
+              "Live Chat",
+              style: GoogleFonts.poppins(
+                color: Color(0xFFF8FAFC),
+                fontWeight: FontWeight.w500,
+                fontSize: 26,
+              ),
+            ),
+            elevation: 0,
+          ),
         ),
       ),
       body: Padding(
@@ -101,8 +110,8 @@ class _LoginScreenViewState extends State<LoginScreenView> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 24),
-                child: Image.asset("assets/images/ss-1.png", height: 320),
+                padding: const EdgeInsets.only(left: 30),
+                child: Image.asset("assets/images/ss-2.png", height: 220),
               ),
               CustomTextFieldCardWidget(
                 controller: _emailController,
@@ -121,7 +130,7 @@ class _LoginScreenViewState extends State<LoginScreenView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "İlk kez Giriş Yapıyorum?",
+                    "Bir hesabın var mı?",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

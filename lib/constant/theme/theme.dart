@@ -15,5 +15,6 @@ ThemeData buildAppTheme() {
       elevation: 0,
     ),
     scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+    
   );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/viewmodel/user_view_model.dart';
 import 'package:provider/provider.dart';
@@ -18,11 +19,25 @@ class HomeViewScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Live Chat'),
+        leading: IconButton(
+          onPressed: () => signOut(context),
+          icon: Icon(Icons.arrow_back_sharp),
+        ),
+        title: Text(
+          'Chat',
+          style: GoogleFonts.poppins(
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+            fontSize: 26,
+          ),
+        ),
+
+        centerTitle: false,
+        backgroundColor: Color(0xFFF8FAFC),
         actions: [
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () => signOut(context),
+          Padding(
+            padding: const EdgeInsets.only(right: 18),
+            child: Image.asset("assets/icons/edit.png", width: 24, height: 24),
           ),
         ],
       ),
