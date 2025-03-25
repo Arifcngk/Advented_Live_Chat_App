@@ -93,12 +93,26 @@ class FirestoreDbService implements DatabaseBase {
     throw UnimplementedError();
   }
 
+// kullanıcılar getiren fonk
   @override
   Future<List<UserModel>> getAllUsers() async {
-    QuerySnapshot users = await _firebaseFirestore.collection("users").get();
-    for (DocumentSnapshot user in users.docs) {
-      print("okunan user" + user.data().toString());
+    try {
+      QuerySnapshot users = await _firebaseFirestore.collection("users").get();
+      List<UserModel> userList = [];
+
+      for (DocumentSnapshot user in users.docs) {
+        print("Read user: " + user.data().toString());
+
+        UserModel userModel = UserModel.fromMap(
+          user.data() as Map<String, dynamic>,
+        );
+        userList.add(userModel);
+      }
+
+      return userList;
+    } catch (e) {
+      print("Error fetching users: $e");
+      return [];
     }
-    return [];
   }
 }
