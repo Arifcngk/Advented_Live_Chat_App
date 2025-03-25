@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:live_chat/constant/app/locator.dart';
 import 'package:live_chat/model/user_model.dart';
@@ -125,5 +127,48 @@ class UserViewModel with ChangeNotifier implements AuthBase {
     } finally {
       state = ViewState.Idle;
     }
+  }
+
+  Future<bool> updateUserName(String userID, String userName) async {
+    state = ViewState.Busy;
+    var result = await _userRepository.updateUserName(userID, userName);
+    if (result) {
+      user!.userName = userName;
+    }
+    state = ViewState.Idle;
+    return result;
+  }
+
+  // firestore
+  Future<String> uploadFile(
+    String userID,
+    String fileType,
+    File? userProfilePhoto,
+  ) async {
+    var result = await _userRepository.uploadFile(
+      userID,
+      fileType,
+      userProfilePhoto,
+    );
+    return result;
+  }
+
+  // cloudera
+  Future<String> uploadClouderaFile(
+    String userID,
+    String fileType,
+    File file,
+  ) async {
+    var result = await _userRepository.uploadClouderaFile(
+      userID,
+      fileType,
+      file,
+    );
+    return result;
+  }
+
+  Future<List<UserModel>> getAllUser() async {
+    var getAllUserList = await _userRepository.getAllUser();
+    return getAllUserList;
   }
 }

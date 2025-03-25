@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:live_chat/viewmodel/user_view_model.dart';
+import 'package:provider/provider.dart';
 
 class UsersViewScreen extends StatelessWidget {
-  const UsersViewScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    userViewModel.getAllUser();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(

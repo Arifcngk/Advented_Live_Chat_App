@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:live_chat/constant/app/locator.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
+import 'package:live_chat/services/cloudinary_storege_service.dart';
 import 'package:live_chat/services/fake_auth_service.dart';
 import 'package:live_chat/services/firebase_auth_service.dart';
+import 'package:live_chat/services/firebase_storege_service.dart';
 import 'package:live_chat/services/firestore_db_service.dart';
 
 enum AppModde { DEBUG, RELEASE }
@@ -12,6 +16,10 @@ class UserRepository implements AuthBase {
       locator<FirebaseAuthService>();
   final FakeAuthService _fakeAuthService = locator<FakeAuthService>();
   final FirestoreDbService _firestoreDbService = locator<FirestoreDbService>();
+  final FirebaseStoregeService _firebaseStoregeService =
+      locator<FirebaseStoregeService>();
+  final CloudinaryStoregeService _cloudinaryStoregeService =
+      locator<CloudinaryStoregeService>();
 
   // Uygulama Hangi modda başlatılsın ?
   AppModde appModde = AppModde.RELEASE;
@@ -20,7 +28,8 @@ class UserRepository implements AuthBase {
     if (appModde == AppModde.DEBUG) {
       return await _fakeAuthService.currentUser();
     } else {
-      return _firebaseAuthService.currentUser();
+      UserModel? _user = await _firebaseAuthService.currentUser();
+      return await _firestoreDbService.getUser(_user!.userID);
     }
   }
 
@@ -50,7 +59,7 @@ class UserRepository implements AuthBase {
       UserModel? _user = await _firebaseAuthService.signInGoogle();
       bool result = await _firestoreDbService.saveUser(_user);
       if (result == true) {
-        return _user;
+        return await _firestoreDbService.getUser(_user!.userID);
       } else {
         return null;
       }
@@ -71,7 +80,7 @@ class UserRepository implements AuthBase {
       );
       bool result = await _firestoreDbService.saveUser(_user);
       if (result == true) {
-        return _user;
+        return await _firestoreDbService.getUser(_user!.userID);
       } else {
         return null;
       }
@@ -86,7 +95,57 @@ class UserRepository implements AuthBase {
     if (appModde == AppModde.DEBUG) {
       return await _fakeAuthService.sigInEmailAndPassword(email, password);
     } else {
-      return _firebaseAuthService.sigInEmailAndPassword(email, password);
+      UserModel? _user = await _firebaseAuthService.sigInEmailAndPassword(
+        email,
+        password,
+      );
+
+      return await _firestoreDbService.getUser(_user!.userID);
+    }
+  }
+
+  Future<bool> updateUserName(String userID, String userName) async {
+    if (appModde == AppModde.DEBUG) {
+      return false;
+    } else {
+      return await _firestoreDbService.updateUserName(userID, userName);
+    }
+  }
+
+  Future<String> uploadFile(
+    String userID,
+    String fileType,
+    File? userProfilePhoto,
+  ) async {
+    if (appModde == AppModde.DEBUG) {
+      return "";
+    } else {
+      return await _firebaseStoregeService.uploadFile(
+        userID,
+        fileType,
+        userProfilePhoto!,
+      );
+    }
+  }
+
+  Future<String> uploadClouderaFile(
+    String userID,
+    String fileType,
+    File file,
+  ) async {
+    if (appModde == AppModde.DEBUG) {
+      return "";
+    } else {
+      return await _firebaseStoregeService.uploadFile(userID, fileType, file!);
+    }
+  }
+
+  Future<List<UserModel>> getAllUser() async {
+    if (appModde == AppModde.DEBUG) {
+      return [];
+    } else {
+      var getAllUsersList = await _firestoreDbService.getAllUsers();
+      return getAllUsersList;
     }
   }
 }

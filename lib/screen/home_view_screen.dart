@@ -46,9 +46,16 @@ class _HomeViewScreenState extends State<HomeViewScreen> {
         createdScreen: allScreen(),
         currentTab: _currentTab,
         onSelectedItem: (selectedTab) {
-          setState(() {
-            _currentTab = selectedTab;
-          });
+          if (selectedTab == _currentTab) {
+            navigatorStateKey[selectedTab]!.currentState!.popUntil(
+              (route) => route.isFirst,
+            );
+          } else {
+            setState(() {
+              _currentTab = selectedTab;
+            });
+          }
+
           print(selectedTab);
         },
       ),

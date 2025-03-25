@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:live_chat/constant/app/firebase_exeption_handler.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/services/database_base.dart';
 
@@ -32,9 +35,70 @@ class FirestoreDbService implements DatabaseBase {
       print('Firestore\'dan okunan kullanıcı: ${_readUserInfo.email}');
 
       return true;
+    } on FirebaseException catch (e) {
+      print(FirebaseExceptionHandler.handleFirebaseFirestoreException(e));
+      return false;
     } catch (e) {
-      print('Firestore saveUser hatası: $e');
+      print(FirebaseExceptionHandler.handleGenericException(e as Exception));
       return false;
     }
+  }
+
+  @override
+  Future<UserModel?> getUser(String userID) async {
+    try {
+      DocumentSnapshot _getUser =
+          await _firebaseFirestore.collection('users').doc(userID).get();
+
+      if (_getUser.exists) {
+        Map<String, dynamic>? _getUserMap =
+            _getUser.data() as Map<String, dynamic>?;
+
+        if (_getUserMap != null) {
+          print(_getUserMap.toString());
+          return UserModel.fromMap(_getUserMap);
+        }
+      }
+      return null; // Kullanıcı bulunamazsa `null` döndür
+    } on FirebaseException catch (e) {
+      print(FirebaseExceptionHandler.handleFirebaseFirestoreException(e));
+      return null;
+    } catch (e) {
+      print(FirebaseExceptionHandler.handleGenericException(e as Exception));
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> updateUserName(String userID, String userName) async {
+    var users =
+        await _firebaseFirestore
+            .collection("users")
+            .where("userName", isEqualTo: userName)
+            .get();
+
+    if (users.docs.length >= 1) {
+      return false;
+    } else {
+      await _firebaseFirestore.collection("users").doc(userID).update({
+        "userName": userName,
+      });
+      return true;
+    }
+  }
+
+  @override
+  Future<String> uploadFile(String userID, String fileType, File uploadFile) {
+    // TODO: implement uploadFile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<UserModel>> getAllUsers() async {
+    QuerySnapshot users = await _firebaseFirestore.collection("users").get();
+    for (DocumentSnapshot user in users.docs) {
+      print("okunan user" + user.data().toString());
+    }
+    return [];
   }
 }
