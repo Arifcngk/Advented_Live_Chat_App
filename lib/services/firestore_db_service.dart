@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:live_chat/constant/app/firebase_exeption_handler.dart';
+import 'package:live_chat/model/chat_model.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/services/database_base.dart';
 
@@ -117,8 +118,16 @@ class FirestoreDbService implements DatabaseBase {
   }
 
   @override
-  Stream getMessage() {
-    // TODO: implement getMessage
-    throw UnimplementedError();
+  Stream<List<ChatModel>> getMessage(String senderUserID, receiverUserID) {
+    var snapshots =
+        _firebaseFirestore
+            .collection("chats")
+            .doc(senderUserID + "=>" + receiverUserID)
+            .collection("chat")
+            .orderBy("date")
+            .snapshots();
+    return snapshots.map(
+      (msjList) => msjList.docs.map((msj) => ChatModel.fromMap(msj.data())).toList(),
+    );
   }
 }

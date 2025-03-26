@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/constant/app/tab_item.dart';
+import 'package:live_chat/screen/widgets/bottom_bar_control.dart';
 
-class CustomBottomNavigatorWidget extends StatelessWidget {
+class CustomBottomNavigatorWidget extends StatefulWidget {
   final TabItem currentTab;
   final ValueChanged<TabItem> onSelectedItem;
   final Map<TabItem, Widget> createdScreen;
@@ -16,6 +17,19 @@ class CustomBottomNavigatorWidget extends StatelessWidget {
     required this.navigatorKeys,
   });
 
+  @override
+  _CustomBottomNavigatorWidgetState createState() => _CustomBottomNavigatorWidgetState();
+}
+
+class _CustomBottomNavigatorWidgetState extends State<CustomBottomNavigatorWidget> {
+  bool _showBottomBar = true;
+
+  void _toggleBottomBar(bool show) {
+    setState(() {
+      _showBottomBar = show;
+    });
+  }
+
   BottomNavigationBarItem _createdNavItem(TabItem tabItem) {
     final currentTab = TabItemData.allTabs[tabItem];
     return BottomNavigationBarItem(
@@ -26,26 +40,43 @@ class CustomBottomNavigatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        items: [
-          _createdNavItem(TabItem.Users),
-          _createdNavItem(TabItem.Profile),
-        ],
-        onTap: (index) {
-          final selectedTab = TabItem.values[index];
-          onSelectedItem(selectedTab);
-        },
-      ),
-      tabBuilder: (context, index) {
-        final selectedTab = TabItem.values[index];
-        return CupertinoTabView(
-          navigatorKey: navigatorKeys[selectedTab],
-          builder: (context) {
-            return createdScreen[selectedTab] ?? Container();
+    if (_showBottomBar) {
+      return CupertinoTabScaffold(
+        tabBar: CupertinoTabBar(
+          items: [
+            _createdNavItem(TabItem.Users),
+            _createdNavItem(TabItem.Profile),
+          ],
+          onTap: (index) {
+            final selectedTab = TabItem.values[index];
+            widget.onSelectedItem(selectedTab);
+            _toggleBottomBar(true); // Tab değiştiğinde bottom bar’ı göster
           },
-        );
-      },
-    );
+        ),
+        tabBuilder: (context, index) {
+          final selectedTab = TabItem.values[index];
+          return CupertinoTabView(
+            navigatorKey: widget.navigatorKeys[selectedTab],
+            builder: (context) {
+              return InheritedBottomBarControl(
+                toggleBottomBar: _toggleBottomBar,
+                child: widget.createdScreen[selectedTab] ?? Container(),
+              );
+            },
+          );
+        },
+      );
+    } else {
+      final selectedTab = widget.currentTab;
+      return CupertinoTabView(
+        navigatorKey: widget.navigatorKeys[selectedTab],
+        builder: (context) {
+          return InheritedBottomBarControl(
+            toggleBottomBar: _toggleBottomBar,
+            child: widget.createdScreen[selectedTab] ?? Container(),
+          );
+        },
+      );
+    }
   }
 }

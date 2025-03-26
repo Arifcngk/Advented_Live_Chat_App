@@ -5,7 +5,6 @@ import 'package:live_chat/screen/profile_view_screen.dart';
 import 'package:live_chat/screen/users_view_screen.dart';
 import 'package:live_chat/screen/widgets/custom_bottom_navigator_widget.dart';
 
-// ignore: must_be_immutable
 class HomeViewScreen extends StatefulWidget {
   final UserModel user;
   HomeViewScreen({super.key, required this.user});
@@ -20,6 +19,7 @@ class _HomeViewScreenState extends State<HomeViewScreen> {
     TabItem.Users: GlobalKey<NavigatorState>(),
     TabItem.Profile: GlobalKey<NavigatorState>(),
   };
+
   Map<TabItem, Widget> allScreen() {
     return {
       TabItem.Users: UsersViewScreen(),
@@ -31,14 +31,14 @@ class _HomeViewScreenState extends State<HomeViewScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
-        if (didPop) return; // Eğer zaten pop edildiyse işlem yapma
+        if (didPop) return;
 
         final navigator = navigatorStateKey[_currentTab]?.currentState;
         if (navigator != null && await navigator.maybePop()) {
-          // Eğer aktif navigator geri gidebiliyorsa, gitmesine izin ver
           return;
         }
 
+        // Root navigator’dan geri dönme durumunda
         print("Ana ekranda geri gitme engellendi!");
       },
       child: CustomBottomNavigatorWidget(
@@ -47,15 +47,13 @@ class _HomeViewScreenState extends State<HomeViewScreen> {
         currentTab: _currentTab,
         onSelectedItem: (selectedTab) {
           if (selectedTab == _currentTab) {
-            navigatorStateKey[selectedTab]!.currentState!.popUntil(
-              (route) => route.isFirst,
-            );
+            // Aynı tab’a tıklanırsa en başa dön
+            navigatorStateKey[selectedTab]!.currentState!.popUntil((route) => route.isFirst);
           } else {
             setState(() {
               _currentTab = selectedTab;
             });
           }
-
           print(selectedTab);
         },
       ),

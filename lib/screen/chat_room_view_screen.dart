@@ -1,92 +1,112 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:live_chat/model/chat_model.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/viewmodel/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 class ChatRoomViewScreen extends StatefulWidget {
   final UserModel? currentUser;
-  final UserModel chatUser;
+  final UserModel? chatUser;
+  final VoidCallback? onPop;
 
-  const ChatRoomViewScreen({
-    super.key,
-    required this.currentUser,
-    required this.chatUser,
-  });
+  const ChatRoomViewScreen({this.currentUser, this.chatUser, this.onPop});
 
   @override
-  State<ChatRoomViewScreen> createState() => _ChatRoomViewScreenState();
+  _ChatRoomViewScreenState createState() => _ChatRoomViewScreenState();
 }
 
 class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
-  var messageController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+  final List<String> _messages = []; // Örnek mesaj listesi
+
+  void _sendMessage() {
+    if (_messageController.text.isNotEmpty) {
+      setState(() {
+        _messages.add(_messageController.text); // Mesajı listeye ekle
+        _messageController.clear(); // Text alanını temizle
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Chat',
-          style: GoogleFonts.poppins(
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-            fontSize: 26,
+    final userViewModel = Provider.of<UserViewModel>(context);
+    UserModel? currentUser = widget.currentUser;
+    UserModel? chatUser = widget.chatUser;
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          widget.onPop?.call(); // Geri dönmeden önce tab bar’ı göster
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.chatUser?.userName ?? "Sohbet Odası"),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              widget.onPop?.call(); // Geri dönmeden önce tab bar’ı göster
+              Navigator.of(context).pop();
+            },
           ),
         ),
-        leading: IconButton(
-          onPressed: () {
-            return Navigator.of(context).pop(); // Geri git
-          },
-          icon: Icon(Icons.abc),
-        ),
-
-        centerTitle: false,
-        backgroundColor: Color(0xFFF8FAFC),
-      ),
-      body: Column(
-        children: [
-          Expanded(child: Text("Konusma")),
-          Container(
-            padding: EdgeInsets.only(bottom: 8, left: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    cursorColor: Colors.amber,
-                    style: TextStyle(fontSize: 23),
-                    decoration: InputDecoration(
-                      fillColor: Colors.green,
-                      filled: true,
-                      hintText: "mesaj ",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+        body: Column(
+          children: [
+            // Mesaj Listesi
+            Expanded(
+              child: StreamBuilder<List<ChatModel>>(
+                stream: userViewModel.getMessages(
+                  currentUser!.userID,
+                  chatUser!.userID,
+                ),
+                builder: (context, msjList) {
+                  if (!msjList.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  var allMessage = msjList.data;
+                  return ListView.builder(
+                    itemCount: allMessage!.length,
+                    itemBuilder: (context, index) {
+                      return Text(allMessage[index].message);
+                    },
+                  );
+                },
+              ),
+            ),
+            // Mesaj Giriş Alanı
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        fillColor: Colors.grey,
+                        filled: true,
+                        hintText: "Mesajınızı yazın...",
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4),
-                  child: FloatingActionButton(
-                    onPressed: () {},
-                    elevation: 0,
-                    backgroundColor: Colors.blue,
-                    child: Icon(Icons.navigate_next_outlined),
-                  ),
-                ),
-              ],
+                  IconButton(icon: Icon(Icons.send), onPressed: _sendMessage),
+                ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }
 
-  Future<bool?> signOut(BuildContext context) async {
-    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
-    bool? result = await userViewModel.signOut();
-    return result;
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
   }
 }
