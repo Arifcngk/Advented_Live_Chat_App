@@ -93,7 +93,7 @@ class FirestoreDbService implements DatabaseBase {
     throw UnimplementedError();
   }
 
-// kullanıcılar getiren fonk
+  // kullanıcılar getiren fonk
   @override
   Future<List<UserModel>> getAllUsers() async {
     try {
@@ -114,5 +114,11 @@ class FirestoreDbService implements DatabaseBase {
       print("Error fetching users: $e");
       return [];
     }
+  }
+
+  @override
+  Stream getMessage() {
+    // TODO: implement getMessage
+    throw UnimplementedError();
   }
 }

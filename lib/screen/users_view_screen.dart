@@ -40,7 +40,7 @@ class UsersViewScreen extends StatelessWidget {
                     return InkWell(
                       onTap: () {
                         // rootnavigator bak
-                        Navigator.of(context).push(
+                        Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                             builder:
                                 (context) => ChatRoomViewScreen(

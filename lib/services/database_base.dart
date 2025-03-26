@@ -8,4 +8,6 @@ abstract class DatabaseBase {
   Future<bool> updateUserName(String userID, String userName);
   Future<String> uploadFile(String userID, String fileType, File uploadFile);
   Future<List<UserModel>> getAllUsers();
+  Stream getMessage();
+  
 }
