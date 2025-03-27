@@ -18,10 +18,12 @@ class CustomBottomNavigatorWidget extends StatefulWidget {
   });
 
   @override
-  _CustomBottomNavigatorWidgetState createState() => _CustomBottomNavigatorWidgetState();
+  _CustomBottomNavigatorWidgetState createState() =>
+      _CustomBottomNavigatorWidgetState();
 }
 
-class _CustomBottomNavigatorWidgetState extends State<CustomBottomNavigatorWidget> {
+class _CustomBottomNavigatorWidgetState
+    extends State<CustomBottomNavigatorWidget> {
   bool _showBottomBar = true;
 
   void _toggleBottomBar(bool show) {
@@ -33,7 +35,7 @@ class _CustomBottomNavigatorWidgetState extends State<CustomBottomNavigatorWidge
   BottomNavigationBarItem _createdNavItem(TabItem tabItem) {
     final currentTab = TabItemData.allTabs[tabItem];
     return BottomNavigationBarItem(
-      icon: Icon(currentTab!.icon, color: Colors.black),
+      icon: Icon(currentTab!.icon),
       label: currentTab.title,
     );
   }
@@ -43,6 +45,9 @@ class _CustomBottomNavigatorWidgetState extends State<CustomBottomNavigatorWidge
     if (_showBottomBar) {
       return CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
+          activeColor: Color(0xFF007665),
+          iconSize: 30,
+
           items: [
             _createdNavItem(TabItem.Users),
             _createdNavItem(TabItem.Profile),

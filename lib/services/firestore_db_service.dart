@@ -118,16 +118,53 @@ class FirestoreDbService implements DatabaseBase {
   }
 
   @override
-  Stream<List<ChatModel>> getMessage(String senderUserID, receiverUserID) {
+  Stream<List<ChatModel>> getMessage(
+    String senderUserID,
+    String receiverUserID,
+  ) {
     var snapshots =
         _firebaseFirestore
             .collection("chats")
-            .doc(senderUserID + "=>" + receiverUserID)
+            .doc("$senderUserID---$receiverUserID")
             .collection("chat")
             .orderBy("date")
             .snapshots();
-    return snapshots.map(
-      (msjList) => msjList.docs.map((msj) => ChatModel.fromMap(msj.data())).toList(),
-    );
+    return snapshots.map((msjList) {
+      print(
+        "Firebase’den gelen snapshot: ${msjList.docs.map((e) => e.data())}",
+      );
+      return msjList.docs.map((msj) => ChatModel.fromMap(msj.data())).toList();
+    });
+  }
+
+  @override
+  Future<bool> saveMessage(ChatModel savedMessage) async {
+    try {
+      var messageID = _firebaseFirestore.collection("chats").doc().id;
+      var myDocID = "${savedMessage.sender}---${savedMessage.receiver}";
+      var receiverDocID = "${savedMessage.receiver}---${savedMessage.sender}";
+      var savedMessageToMap = savedMessage.toMap();
+
+      await _firebaseFirestore
+          .collection("chats")
+          .doc(myDocID)
+          .collection("chat")
+          .doc(messageID)
+          .set(savedMessageToMap);
+
+      savedMessageToMap.update("isMessageSender", (value) => false);
+      await _firebaseFirestore
+          .collection("chats")
+          .doc(receiverDocID)
+          .collection("chat")
+          .doc(messageID)
+          .set(savedMessageToMap);
+      print("Mesaj kaydedildi: ${savedMessage.message}");
+      print("Kaydedilen yol: $myDocID");
+      return true;
+    } catch (e) {
+      print("Hata: $e");
+      return false;
+    }
   }
 }

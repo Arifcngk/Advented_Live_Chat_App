@@ -9,7 +9,10 @@ class TabItemData {
 
   TabItemData({required this.title, required this.icon});
   static Map<TabItem, TabItemData> allTabs = {
-    TabItem.Users: TabItemData(title: "User", icon: Icons.person ),
+    TabItem.Users: TabItemData(
+      title: "User",
+      icon: Icons.person_outline_outlined,
+    ),
     TabItem.Profile: TabItemData(title: "Profile", icon: Icons.settings),
   };
 }

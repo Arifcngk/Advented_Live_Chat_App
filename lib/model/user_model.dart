@@ -28,7 +28,7 @@ class UserModel {
       'email': email ?? '',
       'userName':
           userName ?? email!.substring(0, email!.indexOf('@')) + randomNumber(),
-      'profileURL': profileURL ?? "https://picsum.photos/id/237/200/300",
+      'profileURL': profileURL ?? "https://picsum.photos/200",
 
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
       'updatedAt': updatedAt ?? FieldValue.serverTimestamp(),
