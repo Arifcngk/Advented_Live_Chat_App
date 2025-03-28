@@ -102,7 +102,7 @@ class FirestoreDbService implements DatabaseBase {
       List<UserModel> userList = [];
 
       for (DocumentSnapshot user in users.docs) {
-        print("Read user: " + user.data().toString());
+        // print("Read user: " + user.data().toString());
 
         UserModel userModel = UserModel.fromMap(
           user.data() as Map<String, dynamic>,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/constant/app/tab_item.dart';
+import 'package:live_chat/screen/chats_view_screen.dart';
 import 'package:live_chat/screen/profile_view_screen.dart';
 import 'package:live_chat/screen/users_view_screen.dart';
 import 'package:live_chat/screen/widgets/custom_bottom_navigator_widget.dart';
@@ -18,11 +19,13 @@ class _HomeViewScreenState extends State<HomeViewScreen> {
   Map<TabItem, GlobalKey<NavigatorState>> navigatorStateKey = {
     TabItem.Users: GlobalKey<NavigatorState>(),
     TabItem.Profile: GlobalKey<NavigatorState>(),
+    TabItem.Chats: GlobalKey<NavigatorState>(),
   };
 
   Map<TabItem, Widget> allScreen() {
     return {
       TabItem.Users: UsersViewScreen(),
+      TabItem.Chats: ChatsViewScreen(),
       TabItem.Profile: ProfileViewScreen(),
     };
   }
@@ -48,7 +51,9 @@ class _HomeViewScreenState extends State<HomeViewScreen> {
         onSelectedItem: (selectedTab) {
           if (selectedTab == _currentTab) {
             // Aynı tab’a tıklanırsa en başa dön
-            navigatorStateKey[selectedTab]!.currentState!.popUntil((route) => route.isFirst);
+            navigatorStateKey[selectedTab]!.currentState!.popUntil(
+              (route) => route.isFirst,
+            );
           } else {
             setState(() {
               _currentTab = selectedTab;

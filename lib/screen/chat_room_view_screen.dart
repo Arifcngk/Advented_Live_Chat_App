@@ -10,7 +10,12 @@ class ChatRoomViewScreen extends StatefulWidget {
   final UserModel? chatUser;
   final VoidCallback? onPop;
 
-  const ChatRoomViewScreen({this.currentUser, this.chatUser, this.onPop});
+  const ChatRoomViewScreen({
+    super.key,
+    this.currentUser,
+    this.chatUser,
+    this.onPop,
+  });
 
   @override
   _ChatRoomViewScreenState createState() => _ChatRoomViewScreenState();
@@ -18,23 +23,45 @@ class ChatRoomViewScreen extends StatefulWidget {
 
 class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Ekran açıldığında en alta kaydır
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+  }
 
   void _sendMessage() async {
     if (_messageController.text.trim().isNotEmpty) {
       print("Gönderilen mesaj: ${_messageController.text}");
-      ChatModel _savedMessage = ChatModel(
+      ChatModel savedMessage = ChatModel(
         sender: widget.currentUser!.userID,
         receiver: widget.chatUser!.userID,
         message: _messageController.text,
         isMessageSender: true,
+        date: DateTime.now(), // Tarih ekledim
       );
       final userViewModel = Provider.of<UserViewModel>(context, listen: false);
-      var result = await userViewModel.saveMessage(_savedMessage);
+      var result = await userViewModel.saveMessage(savedMessage);
       if (result) {
         _messageController.clear();
+        _scrollToBottom(); // Yeni mesaj gönderildiğinde en alta kaydır
       } else {
         print("Mesaj kaydedilemedi!");
       }
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0.0, // reverse: true olduğu için en alta gitmek 0.0
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -56,97 +83,106 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
           Navigator.of(context).pop();
         }
       },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: _customAppbar(context),
-        body: Column(
-          children: [
-            Expanded(
-              child: StreamBuilder<List<ChatModel>>(
-                stream: userViewModel.getMessages(
-                  currentUser!.userID,
-                  chatUser!.userID,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: _customAppbar(context),
+          body: Column(
+            children: [
+              Expanded(
+                child: StreamBuilder<List<ChatModel>>(
+                  stream: userViewModel.getMessages(
+                    currentUser!.userID,
+                    chatUser!.userID,
+                  ),
+                  builder: (context, msjList) {
+                    print("Stream verisi: ${msjList.data}");
+                    print(
+                      "Dinlenen yol: ${currentUser.userID}---${chatUser.userID}",
+                    );
+                    if (msjList.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (!msjList.hasData ||
+                        msjList.data == null ||
+                        msjList.data!.isEmpty) {
+                      return Center(child: Text("Henüz mesaj yok."));
+                    }
+                    var allMessage = msjList.data!;
+                    // Mesajları tarihe göre sırala (en yeni en altta)
+                    allMessage.sort((a, b) {
+                      final aDate = a.date ?? DateTime(1970);
+                      final bDate = b.date ?? DateTime(1970);
+                      return bDate.compareTo(aDate); // En yeni altta
+                    });
+                    // Yeni veri geldiğinde en alta kaydır
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _scrollToBottom();
+                    });
+                    return ListView.builder(
+                      reverse: true,
+                      controller: _scrollController,
+                      itemCount: allMessage.length,
+                      itemBuilder: (context, index) {
+                        return chatTextAreaWidget(allMessage[index]);
+                      },
+                    );
+                  },
                 ),
-                builder: (context, msjList) {
-                  print("Stream verisi: ${msjList.data}"); // Debug
-                  print(
-                    "Dinlenen yol: ${currentUser.userID}---${chatUser.userID}",
-                  );
-                  if (msjList.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (!msjList.hasData ||
-                      msjList.data == null ||
-                      msjList.data!.isEmpty) {
-                    return Center(child: Text("Henüz mesaj yok."));
-                  }
-                  var allMessage = msjList.data!;
-                  return ListView.builder(
-                    itemCount: allMessage.length,
-                    itemBuilder: (context, index) {
-                      return chatTextAreaWidget(allMessage[index]);
-                    },
-                  );
-                },
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        fillColor: Color(0xFFF6F6F6),
-                        filled: true,
-                        focusColor: Color(0xFFD0ECE8),
-                        hintText: "Mesajınızı yazın...",
-                        hintStyle: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black38,
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 8),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFF55A99D),
-                          Color(0xFF007665),
-                        ], // Renk geçişi (Mavi → Mor)
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: FloatingActionButton(
-                      onPressed: _sendMessage,
-                      backgroundColor:
-                          Colors.transparent, // Arka planı saydam yap
-                      elevation: 0, // Gölgeyi kaldır
-                      child: Center(
-                        child: Image.asset(
-                          "assets/icons/send.png",
-                          width: 26,
-                          height: 26,
-                          color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          fillColor: Color(0xFFF6F6F6),
+                          filled: true,
+                          focusColor: Color(0xFFD0ECE8),
+                          hintText: "Mesajınızı yazın...",
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black38,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    Container(
+                      margin: EdgeInsets.only(left: 8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF55A99D), Color(0xFF007665)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: FloatingActionButton(
+                        onPressed: _sendMessage,
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        child: Center(
+                          child: Image.asset(
+                            "assets/icons/send.png",
+                            width: 26,
+                            height: 26,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 12),
-          ],
+              SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );
@@ -154,13 +190,13 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
 
   PreferredSize _customAppbar(BuildContext context) {
     return PreferredSize(
-      preferredSize: Size.fromHeight(40), // AppBar yüksekliği
+      preferredSize: Size.fromHeight(70),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Color(0xFFE4E4E4), blurRadius: 2)],
+          color: Color(0xFFF8FAFC),
+          boxShadow: [BoxShadow(color: Color(0xFFE4E4E4), blurRadius: 1)],
         ),
-        padding: EdgeInsets.only(top: 26),
+        padding: EdgeInsets.only(top: 6),
         child: Row(
           children: [
             IconButton(
@@ -195,7 +231,7 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
                   ),
                 ),
                 Text(
-                  "Çevrimiçi", // Kullanıcının durumunu buradan güncelleyebilirsin
+                  "Çevrimiçi",
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w400,
                     fontSize: 10,
@@ -228,21 +264,20 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
   @override
   void dispose() {
     _messageController.dispose();
+    _scrollController.dispose(); // ScrollController’ı temizle
     super.dispose();
   }
 
   Widget chatTextAreaWidget(ChatModel allMessage) {
-    Color gelenMesaj = Color(0xFFE4E4E4); // Gelen mesaj rengi
-    Color gidenMesaj = Color(0xFFD0ECE8); // Giden mesaj rengi
+    Color gelenMesaj = Color(0xFFE4E4E4);
+    Color gidenMesaj = Color(0xFFD0ECE8);
     var benimMesajmi = allMessage.isMessageSender;
 
     if (benimMesajmi) {
-      // Giden mesaj tasarımı (sağa hizalı, mavi)
       return Padding(
         padding: const EdgeInsets.all(8.0),
-
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end, // Sağa hizala
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Container(
               decoration: BoxDecoration(
@@ -250,18 +285,17 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
                   bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(0), // Sağ alt köşe düz
+                  bottomRight: Radius.circular(0),
                 ),
                 color: gidenMesaj,
               ),
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-
-              margin: EdgeInsets.only(left: 40.0), // Sol tarafta boşluk bırak
+              margin: EdgeInsets.only(left: 40.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    allMessage.message ?? "Mesaj yok",
+                    allMessage.message,
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w400,
                       fontSize: 16,
@@ -269,7 +303,7 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
                     ),
                   ),
                   Text(
-                    _formatTime(allMessage.date) ?? "Mesaj yok",
+                    _formatTime(allMessage.date),
                     textAlign: TextAlign.end,
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w400,
@@ -284,11 +318,10 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
         ),
       );
     } else {
-      // Gelen mesaj tasarımı (sola hizalı, yeşil)
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Sola hizala
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -304,27 +337,24 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
                           ? Icon(Icons.person, color: Colors.white)
                           : null,
                 ),
-
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(24),
                       topRight: Radius.circular(24),
-                      bottomLeft: Radius.circular(0), // Sol alt köşe düz
+                      bottomLeft: Radius.circular(0),
                       bottomRight: Radius.circular(24),
                     ),
                     color: gelenMesaj,
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  margin: EdgeInsets.only(
-                    right: 40.0,
-                    left: 20,
-                  ), // Sağ tarafta boşluk bırak
+                  margin: EdgeInsets.only(right: 40.0, left: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        allMessage.message ?? "Mesaj yok",
+                        allMessage.message,
+                        textAlign: TextAlign.start,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
@@ -332,7 +362,7 @@ class _ChatRoomViewScreenState extends State<ChatRoomViewScreen> {
                         ),
                       ),
                       Text(
-                        _formatTime(allMessage.date) ?? "Mesaj yok",
+                        _formatTime(allMessage.date),
                         textAlign: TextAlign.end,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w400,

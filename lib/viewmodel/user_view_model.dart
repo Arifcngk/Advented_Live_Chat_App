@@ -7,6 +7,7 @@ import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/repository/user_repo.dart';
 import 'package:live_chat/services/auth_base.dart';
 
+// ignore: constant_identifier_names
 enum ViewState { Idle, Busy }
 
 class UserViewModel with ChangeNotifier implements AuthBase {

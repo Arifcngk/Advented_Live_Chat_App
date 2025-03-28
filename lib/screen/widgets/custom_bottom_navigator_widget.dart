@@ -47,9 +47,14 @@ class _CustomBottomNavigatorWidgetState
         tabBar: CupertinoTabBar(
           activeColor: Color(0xFF007665),
           iconSize: 30,
+          height: 50,
+
+          border: Border.all(color: Colors.grey),
+          backgroundColor: Color(0xFFF8FAFC),
 
           items: [
             _createdNavItem(TabItem.Users),
+            _createdNavItem(TabItem.Chats),
             _createdNavItem(TabItem.Profile),
           ],
           onTap: (index) {

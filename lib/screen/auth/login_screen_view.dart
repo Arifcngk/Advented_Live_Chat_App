@@ -8,6 +8,8 @@ import 'package:live_chat/viewmodel/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreenView extends StatefulWidget {
+  const LoginScreenView({super.key});
+
   @override
   State<LoginScreenView> createState() => _LoginScreenViewState();
 }

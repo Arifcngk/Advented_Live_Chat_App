@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-enum TabItem { Users, Profile }
+// ignore: constant_identifier_names
+enum  TabItem { Users, Chats, Profile }
 
 class TabItemData {
   final String title;
@@ -10,9 +10,10 @@ class TabItemData {
   TabItemData({required this.title, required this.icon});
   static Map<TabItem, TabItemData> allTabs = {
     TabItem.Users: TabItemData(
-      title: "User",
+      title: "Kişiler",
       icon: Icons.person_outline_outlined,
     ),
-    TabItem.Profile: TabItemData(title: "Profile", icon: Icons.settings),
+    TabItem.Chats: TabItemData(title: "Sohbet", icon: Icons.chat),
+    TabItem.Profile: TabItemData(title: "Ayarlar", icon: Icons.settings),
   };
 }

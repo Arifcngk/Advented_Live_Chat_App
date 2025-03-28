@@ -9,6 +9,7 @@ import 'package:live_chat/services/firebase_auth_service.dart';
 import 'package:live_chat/services/firebase_storege_service.dart';
 import 'package:live_chat/services/firestore_db_service.dart';
 
+// ignore: constant_identifier_names
 enum AppModde { DEBUG, RELEASE }
 
 class UserRepository implements AuthBase {
@@ -26,8 +27,8 @@ class UserRepository implements AuthBase {
     if (appModde == AppModde.DEBUG) {
       return await _fakeAuthService.currentUser();
     } else {
-      UserModel? _user = await _firebaseAuthService.currentUser();
-      return await _firestoreDbService.getUser(_user!.userID);
+      UserModel? user = await _firebaseAuthService.currentUser();
+      return await _firestoreDbService.getUser(user!.userID);
     }
   }
 
@@ -54,10 +55,10 @@ class UserRepository implements AuthBase {
     if (appModde == AppModde.DEBUG) {
       return await _fakeAuthService.signInGoogle();
     } else {
-      UserModel? _user = await _firebaseAuthService.signInGoogle();
-      bool result = await _firestoreDbService.saveUser(_user);
+      UserModel? user = await _firebaseAuthService.signInGoogle();
+      bool result = await _firestoreDbService.saveUser(user);
       if (result == true) {
-        return await _firestoreDbService.getUser(_user!.userID);
+        return await _firestoreDbService.getUser(user!.userID);
       } else {
         return null;
       }
@@ -72,13 +73,13 @@ class UserRepository implements AuthBase {
     if (appModde == AppModde.DEBUG) {
       return await _fakeAuthService.createEmailAndPassword(email, password);
     } else {
-      UserModel? _user = await _firebaseAuthService.createEmailAndPassword(
+      UserModel? user = await _firebaseAuthService.createEmailAndPassword(
         email,
         password,
       );
-      bool result = await _firestoreDbService.saveUser(_user);
+      bool result = await _firestoreDbService.saveUser(user);
       if (result == true) {
-        return await _firestoreDbService.getUser(_user!.userID);
+        return await _firestoreDbService.getUser(user!.userID);
       } else {
         return null;
       }
@@ -93,12 +94,12 @@ class UserRepository implements AuthBase {
     if (appModde == AppModde.DEBUG) {
       return await _fakeAuthService.sigInEmailAndPassword(email, password);
     } else {
-      UserModel? _user = await _firebaseAuthService.sigInEmailAndPassword(
+      UserModel? user = await _firebaseAuthService.sigInEmailAndPassword(
         email,
         password,
       );
 
-      return await _firestoreDbService.getUser(_user!.userID);
+      return await _firestoreDbService.getUser(user!.userID);
     }
   }
 
