@@ -1,13 +1,13 @@
 import 'dart:io';
-
 import 'package:live_chat/services/storege_base.dart';
 import 'package:cloudinary/cloudinary.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CloudinaryStoregeService implements StoregeBase {
   final Cloudinary _cloudinary = Cloudinary.signedConfig(
-    apiKey: 'cKjjk0MO3-GPr_iLmALQDr1dbhA',
-    apiSecret: '833536691621619',
-    cloudName: 'djcistcf8',
+    apiKey: dotenv.env['CLOUDINARY_API_KEY'] ?? '',
+    apiSecret: dotenv.env['CLOUDINARY_API_SECRET'] ?? '',
+    cloudName: dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '',
   );
 
   @override
@@ -18,10 +18,9 @@ class CloudinaryStoregeService implements StoregeBase {
   ) async {
     try {
       final response = await _cloudinary.upload(
-        file: fileType,
+        file: uploadFile.path, // Düzeltme: fileType yerine uploadFile.path
         resourceType: CloudinaryResourceType.image,
-        folder:
-            'user_profile_pics/', // opsiyonel, istediğiniz klasörü belirleyebilirsiniz
+        folder: 'user_profile_pics/', // Opsiyonel klasör
       );
       return response.secureUrl.toString(); // Yüklenen resmin URL'si
     } catch (e) {

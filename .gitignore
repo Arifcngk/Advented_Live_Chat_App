@@ -49,3 +49,5 @@ lib/cloudinary_storege_service.dart
 
 # Android Firebase dosyası
 android/app/google-services.json
+
+.env
