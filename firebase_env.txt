@@ -1,0 +1,36 @@
+# Bu dosya, Firebase entegrasyonu için gerekli yönergeleri içerir.
+# Firebase projenizi yapılandırmak için aşağıdaki adımları izleyin ve
+# gerekli dosyaları kendi Firebase konsolunuzdan indirin.
+# Bu dosyaları Git’e eklemeyin; `.gitignore` ile hariç tutulmuştur.
+
+# 1. Firebase Projesi Oluşturun
+# - Firebase konsoluna gidin: https://console.firebase.google.com/
+# - Yeni bir proje oluşturun veya mevcut bir projeyi seçin.
+
+# 2. FlutterFire CLI ile Yapılandırma
+# - Terminalde aşağıdaki komutu çalıştırarak FlutterFire CLI’yi kurun:
+#   dart pub global activate flutterfire_cli
+# - Ardından projenizi yapılandırmak için:
+#   flutterfire configure
+# - Bu komut, `lib/firebase_options.dart` dosyasını otomatik olarak oluşturur.
+# - Seçenekler:
+#   - Android paket adı: com.example.live_chat (kendi paket adınızı kullanın)
+#   - iOS bundle ID: com.example.liveChat (kendi bundle ID’nizi kullanın)
+
+# 3. Platforma Özel Dosyalar
+# - Android: Firebase konsolundan `google-services.json` dosyasını indirin ve
+#   `android/app/` klasörüne yerleştirin.
+# - iOS: Firebase konsolundan `GoogleService-Info.plist` dosyasını indirin ve
+#   `ios/Runner/` klasörüne yerleştirin.
+
+# 4. Ortam Değişkenleri (Opsiyonel)
+# Eğer manuel olarak ortam değişkenleri kullanmak isterseniz, `.env` dosyasına
+# aşağıdaki gibi ekleyebilirsiniz (ancak FlutterFire CLI bunu otomatik yapar):
+# FIREBASE_API_KEY=your_firebase_api_key
+# FIREBASE_APP_ID=your_firebase_app_id
+# FIREBASE_PROJECT_ID=your_firebase_project_id
+
+# Not: Oluşturulan dosyaları (`lib/firebase_options.dart`, `google-services.json`,
+# `GoogleService-Info.plist`) `.gitignore` ile hariç tutun ve Git’e yüklemeyin.
+
+# İyi Çalışmalar :D
