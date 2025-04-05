@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:live_chat/viewmodel/user_view_model.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env"); // .env dosyasını yükle
+  //await dotenv.load(fileName: ".env"); // .env dosyasını yükle
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

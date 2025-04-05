@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // ignore: constant_identifier_names
-enum  TabItem { Users, Chats, Profile }
+enum TabItem { Users, Chats, Profile }
 
 class TabItemData {
   final String title;
@@ -13,7 +13,10 @@ class TabItemData {
       title: "Kişiler",
       icon: Icons.person_outline_outlined,
     ),
-    TabItem.Chats: TabItemData(title: "Sohbet", icon: Icons.chat),
+    TabItem.Chats: TabItemData(
+      title: "Sohbet",
+      icon: Icons.chat_bubble_outline_rounded,
+    ),
     TabItem.Profile: TabItemData(title: "Ayarlar", icon: Icons.settings),
   };
 }

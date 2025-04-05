@@ -10,11 +10,10 @@ ThemeData buildAppTheme() {
     ),
 
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF29e680),
+      backgroundColor: Color(0xFF007665),
       centerTitle: true,
       elevation: 0,
     ),
     scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-    
   );
 }

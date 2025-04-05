@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:live_chat/constant/app/locator.dart';
 import 'package:live_chat/model/chat_model.dart';
+import 'package:live_chat/model/message_model.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/repository/user_repo.dart';
 import 'package:live_chat/services/auth_base.dart';
@@ -178,7 +179,11 @@ class UserViewModel with ChangeNotifier implements AuthBase {
     return _userRepository.getMessages(currentUser, chatUser);
   }
 
-  Future<bool> saveMessage(ChatModel savedMessage) {
-    return _userRepository.saveMessage(savedMessage);
+  Future<bool> saveMessage(ChatModel savedMessage) async {
+    return await _userRepository.saveMessage(savedMessage);
+  }
+
+  Future<List<MessageModel>> getAllConversations(String userID) async {
+    return await _userRepository.getAllConversations(userID);
   }
 }

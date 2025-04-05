@@ -128,7 +128,10 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
                       borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
                     focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
+                      borderSide: BorderSide(
+                        color: Color(0xFF007665),
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
@@ -141,7 +144,7 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
                     txt: "Güncelle",
                     imagePath: false,
                     txtColor: Colors.white,
-                    cardColor: Colors.green,
+                    cardColor: Color(0xFF007665),
                   ),
                 ),
               ],
@@ -179,7 +182,7 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
           right: 0,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.green,
+              color: Color(0xFF007665),
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
             ),
@@ -190,17 +193,27 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
                   context: context,
                   builder: (context) {
                     return SizedBox(
-                      height: 200,
+                      height: 120,
                       child: Column(
                         children: [
                           ListTile(
                             leading: const Icon(Icons.image),
-                            title: const Text("Galeriden Seç"),
+                            title: Text(
+                              "Galeriden Seç",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
                             onTap: () => _chooseGallerySelected(context),
                           ),
                           ListTile(
                             leading: const Icon(Icons.camera_alt),
-                            title: const Text("Kameradan Seç"),
+                            title: Text(
+                              "Kameradan Seç",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
                             onTap: () => _chooseCameraSelected(context),
                           ),
                         ],

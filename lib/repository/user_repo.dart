@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:live_chat/constant/app/locator.dart';
 import 'package:live_chat/model/chat_model.dart';
+import 'package:live_chat/model/message_model.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
 import 'package:live_chat/services/fake_auth_service.dart';
@@ -19,6 +20,8 @@ class UserRepository implements AuthBase {
   final FirestoreDbService _firestoreDbService = locator<FirestoreDbService>();
   final FirebaseStoregeService _firebaseStoregeService =
       locator<FirebaseStoregeService>();
+
+  List<UserModel> getAllUsersList = [];
 
   // Uygulama Hangi modda başlatılsın ?
   AppModde appModde = AppModde.RELEASE;
@@ -143,7 +146,7 @@ class UserRepository implements AuthBase {
     if (appModde == AppModde.DEBUG) {
       return [];
     } else {
-      var getAllUsersList = await _firestoreDbService.getAllUsers();
+      getAllUsersList = await _firestoreDbService.getAllUsers();
       return getAllUsersList;
     }
   }
@@ -169,5 +172,49 @@ class UserRepository implements AuthBase {
     } else {
       return _firestoreDbService.saveMessage(savedMessage);
     }
+  }
+
+  Future<List<MessageModel>> getAllConversations(String userID) async {
+    if (appModde == AppModde.DEBUG) {
+      return Future.value(
+        <MessageModel>[],
+      ); // Return an empty list in debug mode
+    } else {
+      var chatList = await _firestoreDbService.getAllConversations(userID);
+      for (var element in chatList) {
+        var userList = listSearchUser(element.chatWith);
+
+        if (userList != null) {
+          element.chatWithID = userList.userName!;
+          element.chatWithProfileURL = userList.profileURL!;
+        } else {
+          print(
+            "User not found locally, trying to fetch from DB: ${element.chatWith}",
+          );
+          var dbReadUser = await _firestoreDbService.getUser(element.chatWith);
+          if (dbReadUser != null) {
+            element.chatWithID = dbReadUser.userName!;
+            element.chatWithProfileURL = dbReadUser.profileURL!;
+          } else {
+            print("User ${element.chatWith} not found in DB.");
+            // Handle the case when the user is not found in both places
+            element.chatWithID =
+                "Unknown"; // Assign a default value or handle it as needed
+            element.chatWithProfileURL =
+                ""; // Assign a default or placeholder URL
+          }
+        }
+      }
+      return chatList; // Return the enriched chat list
+    }
+  }
+
+  UserModel? listSearchUser(String userID) {
+    for (var i = 0; i < getAllUsersList.length; i++) {
+      if (getAllUsersList[i].userID == userID) {
+        return getAllUsersList[i];
+      }
+    }
+    return null;
   }
 }

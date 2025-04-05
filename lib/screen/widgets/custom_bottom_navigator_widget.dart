@@ -33,6 +33,7 @@ class _CustomBottomNavigatorWidgetState
   }
 
   BottomNavigationBarItem _createdNavItem(TabItem tabItem) {
+    
     final currentTab = TabItemData.allTabs[tabItem];
     return BottomNavigationBarItem(
       icon: Icon(currentTab!.icon),

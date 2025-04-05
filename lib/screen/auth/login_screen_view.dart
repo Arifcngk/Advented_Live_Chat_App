@@ -140,7 +140,7 @@ class _LoginScreenViewState extends State<LoginScreenView> {
                   ),
                   AdvancedSwitch(
                     controller: _switchController,
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor: Color(0xFF007665),
                   ),
                 ],
               ),
@@ -156,7 +156,7 @@ class _LoginScreenViewState extends State<LoginScreenView> {
                   imgPath: "assets/icons/send.png",
                   imagePath: false,
 
-                  cardColor: Theme.of(context).colorScheme.secondary,
+                  cardColor: Color(0xFF007665),
                   txt: "Giriş Yap",
                   txtColor: Color(0xFFF8FAFC),
                 ),

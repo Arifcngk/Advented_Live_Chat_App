@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:live_chat/constant/app/firebase_exeption_handler.dart';
 import 'package:live_chat/model/chat_model.dart';
+import 'package:live_chat/model/message_model.dart';
 import 'package:live_chat/model/user_model.dart';
 import 'package:live_chat/services/database_base.dart';
 
@@ -117,6 +118,33 @@ class FirestoreDbService implements DatabaseBase {
     }
   }
 
+  // Konuşmaları getir
+  @override
+  Future<List<MessageModel>> getAllConversations(String userID) async {
+    QuerySnapshot querySnapshot =
+        await _firebaseFirestore
+            .collection("chats")
+            .where("owner", isEqualTo: userID)
+            .orderBy("timestamp", descending: true)
+            .get();
+    print("gelen veri" + querySnapshot.docs.length.toString());
+
+    List<MessageModel> allConversations = [];
+
+    for (var singleChat in querySnapshot.docs) {
+      print("Single Chat Data: ${singleChat.data()}");
+
+      MessageModel messageModel = MessageModel.fromMap(
+        singleChat.data() as Map<String, dynamic>,
+      );
+      allConversations.add(messageModel);
+    }
+
+    return allConversations;
+  }
+
+  //mesajları getir
+
   @override
   Stream<List<ChatModel>> getMessage(
     String senderUserID,
@@ -152,6 +180,14 @@ class FirestoreDbService implements DatabaseBase {
           .doc(messageID)
           .set(savedMessageToMap);
 
+      await _firebaseFirestore.collection("chats").doc(myDocID).set({
+        "owner": savedMessage.sender,
+        "chat_with": savedMessage.receiver,
+        "last_message": savedMessage.message,
+        "isRead": false,
+        "timestamp": FieldValue.serverTimestamp(),
+      });
+
       savedMessageToMap.update("isMessageSender", (value) => false);
       await _firebaseFirestore
           .collection("chats")
@@ -159,11 +195,20 @@ class FirestoreDbService implements DatabaseBase {
           .collection("chat")
           .doc(messageID)
           .set(savedMessageToMap);
-      print("Mesaj kaydedildi: ${savedMessage.message}");
-      print("Kaydedilen yol: $myDocID");
+      print("Message saved: ${savedMessage.message}");
+      print("Saved path: $myDocID");
+
+      await _firebaseFirestore.collection("chats").doc(receiverDocID).set({
+        "owner": savedMessage.receiver,
+        "chat_with": savedMessage.sender,
+        "last_message": savedMessage.message,
+        "isRead": false,
+        "timestamp": FieldValue.serverTimestamp(),
+      });
+
       return true;
     } catch (e) {
-      print("Hata: $e");
+      print("Error: $e");
       return false;
     }
   }
